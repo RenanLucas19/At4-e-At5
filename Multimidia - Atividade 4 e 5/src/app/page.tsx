@@ -38,6 +38,12 @@ export default function Home() {
     }
   }, [volume]);
 
+  useEffect(() => {
+    if (videoRef.current) {
+      playing ? videoRef.current.play() : videoRef.current.pause();
+    }
+  }, [videoIndex, playing]);
+
   const configCurrentTime = (time: number) => {
     const video = videoRef.current;
     if (!video) return;
@@ -83,6 +89,12 @@ export default function Home() {
     configCurrentTime(newTime);
   }
 
+  const nextVideo = () => {
+    setVideoIndex((prevIndex) => (prevIndex + 1) % videos.length);
+    setCurrentTime(0);
+    setPlaying(true);
+  };
+
   const handleLoadedMetadata = () => {
     if (videoRef.current) {
       setDuration(videoRef.current.duration);
@@ -101,7 +113,10 @@ export default function Home() {
               <button 
                 key={index} 
                 className={`w-full p-3 flex items-center gap-3 hover:bg-gray-700 transition ${videoIndex === index ? 'bg-gray-600' : ''}`}
-                onClick={() => setVideoIndex(index)}
+                onClick={() => {
+                  setVideoIndex(index);
+                  setPlaying(true);
+                }}
               >
                 <img 
                   src={video.image} 
@@ -127,6 +142,7 @@ export default function Home() {
               onPause={() => setPlaying(false)}
               onTimeUpdate={() => setCurrentTime(videoRef.current?.currentTime || 0)}
               onLoadedMetadata={handleLoadedMetadata}
+              onEnded={nextVideo}
             />
           </div>
        
